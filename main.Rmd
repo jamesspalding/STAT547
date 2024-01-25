@@ -1,0 +1,10 @@
+---
+title: "STAT547"
+author: "James Spalding"
+date: "2024-01-25"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
