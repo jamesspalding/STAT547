@@ -1,5 +1,5 @@
 ---
-title: "STAT547"
+title: "STAT547 Graduate Project"
 author: "James Spalding"
 date: "2024-01-25"
 output: pdf_document
@@ -8,3 +8,83 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# Check-in 1
+
+1. Write R code to find the mean matrix and average misorientation angle (AMA) for this generic data set: GenericData.csv. You may want to think about how to put data into an array in R of size 3x3xn. This is a way to store all n 3x3 matrices in one R object
+
+```{r}
+#Load libraries
+library(tidyverse)
+library(abind)
+
+#Load data
+testData = read.csv(paste0(getwd(),"/files/GenericData.csv"))
+```
+
+```{r}
+#Function to create array of matrices from dataframe
+
+makeArray = function(df){
+  matArray = array(dim = c(3, 3, 0))
+  
+  for(i in 1:nrow(df)){
+    temp = matrix(testData[i,2:10], ncol = 3, byrow=T) #Will need to adjust for actual data.
+    matArray = abind(matArray, temp, along = 3)
+  }
+  
+  return(matArray)
+}
+
+#Example
+testDataArray = makeArray(testData)
+testDataArray[,,5]
+```
+
+```{r}
+#Function to find mean matrix from matrix array
+
+meanMat = function(array){
+  length = dim(array)[3]
+  matSum = apply(array, c(1, 2), sum)
+  oBar = matSum / length
+  
+  V = svd(oBar)$u
+  W = svd(oBar)$v
+  M = V %*% W #Not sure if %*% or * should be used here...
+  
+  return(M)
+}
+
+#Example
+meanMat(testDataArray)
+```
+
+```{r}
+# Function to find Average Misorientation Angle given an array and observation
+
+misorientAngle = function(array, obs){
+  #acos((sum(diag(t(testDataArray[,,1]) %*% meanMat(testDataArray)))-1)/2) #Split into multiple lines for readability
+  
+  oP = t(array[,,obs])
+  M = meanMat(array)
+  traceOPM = sum(diag(oP %*% M)) 
+  
+  angle = acos((traceOPM-1)/2)
+  return(angle)
+}
+
+#Example
+misorientAngle(testDataArray, 10)
+```
+
+
+
+
+
+
+
+
+
+
+
