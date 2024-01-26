@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 1. Write R code to find the mean matrix and average misorientation angle (AMA) for this generic data set: GenericData.csv. You may want to think about how to put data into an array in R of size 3x3xn. This is a way to store all n 3x3 matrices in one R object
 
-```{r}
+```{r, echo=F}
 #Load libraries
 library(tidyverse)
 library(abind)
@@ -71,6 +71,7 @@ misorientAngle = function(array, obs){
   traceOPM = sum(diag(oP %*% M)) 
   
   angle = acos((traceOPM-1)/2)
+  cat("Misorientaton angle of observation", as.character(obs), ":\n")
   return(angle)
 }
 
