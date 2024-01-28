@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 1. Write R code to find the mean matrix and average misorientation angle (AMA) for this generic data set: GenericData.csv. You may want to think about how to put data into an array in R of size 3x3xn. This is a way to store all n 3x3 matrices in one R object
 
-```{r, echo=F}
+```{r, echo=F, include=F}
 #Load libraries
 library(tidyverse)
 library(abind)
@@ -29,7 +29,7 @@ makeArray = function(df){
   matArray = array(dim = c(3, 3, 0))
   
   for(i in 1:nrow(df)){
-    temp = matrix(testData[i,2:10], ncol = 3, byrow=T) #Will need to adjust for actual data.
+    temp = matrix(testData[i,2:10], ncol = 3, byrow=F) #Will need to adjust for actual data.
     matArray = abind(matArray, temp, along = 3)
   }
   
@@ -51,7 +51,7 @@ meanMat = function(array){
   
   V = svd(oBar)$u
   W = svd(oBar)$v
-  M = V %*% W #Not sure if %*% or * should be used here...
+  M = V %*% t(W)
   
   return(M)
 }
@@ -63,20 +63,41 @@ meanMat(testDataArray)
 ```{r}
 # Function to find Average Misorientation Angle given an array and observation
 
-misorientAngle = function(array, obs){
-  #acos((sum(diag(t(testDataArray[,,1]) %*% meanMat(testDataArray)))-1)/2) #Split into multiple lines for readability
+misorientAngle = function(array, obs=NA){
   
-  oP = t(array[,,obs])
-  M = meanMat(array)
-  traceOPM = sum(diag(oP %*% M)) 
-  
-  angle = acos((traceOPM-1)/2)
-  cat("Misorientaton angle of observation", as.character(obs), ":\n")
-  return(angle)
+  if(is.na(obs) == T){
+    
+    arrayLength = dim(array)[3]
+    sumAngle = 0
+    M = meanMat(array)
+    
+    for(i in 1:arrayLength){
+      oP = t(array[,,i])
+      traceOPM = sum(diag(oP %*% M)) 
+      sumAngle = sumAngle + acos((traceOPM-1)/2)
+    }
+    
+    avgAngle = sumAngle/arrayLength
+    cat("Average misorientation angle:\n")
+    return(avgAngle)
+    
+  }else{
+    
+    oP = t(array[,,obs])
+    M = meanMat(array)
+    traceOPM = sum(diag(oP %*% M)) 
+    angle = acos((traceOPM-1)/2)
+    
+    cat(paste0("Misorientaton angle of observation ", as.character(obs), ":\n"))
+    return(angle)
+    
+  }
+
 }
 
 #Example
-misorientAngle(testDataArray, 10)
+misorientAngle(testDataArray) #Average angle
+misorientAngle(testDataArray, obs=10) #Angle of individual observation
 ```
 
 
