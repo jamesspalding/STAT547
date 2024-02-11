@@ -1,4 +1,5 @@
-#Load libraries
+#Load libraries/optional testing data
+#testData = read.csv(paste0(getwd(),"/files/Data.csv"))
 library(tidyverse)
 library(abind)
 
@@ -8,12 +9,15 @@ makeArray = function(df){
   matArray = array(dim = c(3, 3, 0))
   
   for(i in 1:nrow(df)){
-    temp = matrix(testData[i,2:10], ncol = 3, byrow=F) #Will need to adjust for actual data.
+    temp = matrix(testData[i,4:12], ncol = 3, byrow=F)
     matArray = abind(matArray, temp, along = 3)
   }
   
+  colnames(matArray) = c("[X]", "[Y]", "[Z]")
+  rownames(matArray) = c("[1]", "[2]", "[3]")
   return(matArray)
 }
+
 
 # Usage
 # testDataArray = makeArray(testData)
