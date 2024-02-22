@@ -13,4 +13,11 @@ TODO:
 
 * **makeArray(dataframe)**: turns dataframe into an array of matrices
 * **meanMat(array)**: takes an array of matrices and returns the mean matrix **M**
-* **misorientAngle(array, observation)**: takes an array of matrices and the intended observation in which an angle is to be found and returns said angle. If no observation is given, returns the average angle of the array.
+* **misorientAngle(array, verbose)**: takes an array of matrices and returns the average angle of the array. Verbose = F suppresses output message.
+
+### Check-in 3
+
+TODO:
+- [x] Combine arrays
+- [x] Run permutation test
+- [x] Determine if arrays differ (they don't)
