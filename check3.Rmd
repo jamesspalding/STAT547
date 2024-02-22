@@ -1,0 +1,66 @@
+---
+title: "Check-in 2"
+author: "James Spalding"
+date: "2024-02-22"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Check-in 3
+
+The .Rdata file below contains two objects named A and B. A and B are both arrays of dimension 3x3x50, so each is a set of 50 orthogonal rotation matrices. Bringing together what we did for check in 1 and check in 2, you want to write code to conduct a permutation test to determine if there is a difference in the population mean matrices for the two populations that A and B are sampled from. You can also use any code you’ve written from Check in 1 and 2, provided it was correct. The observed statistic you will want to use for the permutation test is the misorientation angle (a measure of distance) between the mean matrix for A and mean matrix for B. This same statistic will then be calculated for all permutated data.
+
+```{r}
+#loading functions and data
+source("functions.R")
+load(paste0(getwd(),"/files/check3.RData"))
+# library(tidyverse)
+# library(abind) #Both libraries are included in the functions.R file.
+```
+
+```{r}
+##### Data #####
+#A
+#B
+combinedMats = abind(A,B)
+
+
+##### observed difference #####
+#need to format A and B into an array
+meanmats1 = array(dim = c(3, 3, 2))
+meanmats1[,,1] = meanMat(A)
+meanmats1[,,2] = meanMat(B)
+diffObs = misorientAngle(meanmats1, verbose = F)
+
+
+##### permutation test #####
+repLength = 1000 #number of perms
+perms = c()
+
+for(i in 1:repLength){
+  index=sample(1:dim(combinedMats)[3],dim(A)[3]) 
+  permA=combinedMats[,,index]
+  permB=combinedMats[,,-index]
+  
+  tempArray = array(dim = c(3, 3, 2))
+  tempArray[,,1] = meanMat(permA)
+  tempArray[,,2] = meanMat(permB)
+  
+  perms[i] = misorientAngle(tempArray, verbose = F)
+}
+
+
+##### Conclusion #####
+#Two-tailed p-value: proportion of abs(permutations) at or more extreme than abs(observed)
+#H0: means are the same
+#Ha: means differ
+pval = length(which(abs(perms)>=abs(diffObs)))/length(perms) 
+cat("Observed misorientation angle =",diffObs,
+    "\nP-value =",pval)
+```
+
+
+
