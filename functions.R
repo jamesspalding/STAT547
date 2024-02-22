@@ -42,36 +42,23 @@ meanMat = function(array){
 
 
 #----- Average Misorientation Angle -----#
-misorientAngle = function(array, obs=NA){
-  
-  if(is.na(obs) == T){
-    
-    arrayLength = dim(array)[3]
-    sumAngle = 0
-    M = meanMat(array)
-    
-    for(i in 1:arrayLength){
-      oP = t(array[,,i])
-      traceOPM = sum(diag(oP %*% M)) 
-      sumAngle = sumAngle + acos((traceOPM-1)/2)
-    }
-    
-    avgAngle = sumAngle/arrayLength
-    cat("Average misorientation angle:\n")
-    return(avgAngle)
-    
-  }else{
-    
-    oP = t(array[,,obs])
-    M = meanMat(array)
-    traceOPM = sum(diag(oP %*% M)) 
-    angle = acos((traceOPM-1)/2)
-    
-    cat(paste0("Misorientaton angle of observation ", as.character(obs), ":\n"))
-    return(angle)
-    
-  }
+misorientAngle = function(array, verbose = T){
 
+  arrayLength = dim(array)[3]
+  sumAngle = 0
+  M = meanMat(array)
+  
+  for(i in 1:arrayLength){
+    oP = t(array[,,i])
+    traceOPM = sum(diag(oP %*% M)) 
+    sumAngle = sumAngle + acos((traceOPM-1)/2)
+  }
+  
+  avgAngle = sumAngle/arrayLength
+  if(verbose == T){
+    cat("Average misorientation angle:\n")
+  }
+  return(avgAngle)
 }
 
 #Usage
