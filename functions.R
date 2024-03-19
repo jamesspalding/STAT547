@@ -114,9 +114,11 @@ arrayPerm = function(array1, array2, nperms = 1000, alt = "two.sided", silent = 
   if(silent == F){
     cat("Observed misorientation angle =",diffObs,
     "\nP-value =",pval)
+    invisible(list(diffObs,pval))
+
+  }else{
+    return(list(diffObs,pval))
   }
-  
-  invisible(c(diffObs,pval))
 }
 
 
