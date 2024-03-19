@@ -1,0 +1,46 @@
+---
+title: "Untitled"
+author: "James Spalding"
+date: "2024-03-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source(paste0(getwd(),"/files/Power-graphs-mean.R")) #data
+source("functions.R")
+library(BSDA)
+```
+
+```{r}
+arrayPerm(A,B)
+
+
+
+pt=pb=rep(0,10) #set up a blank string to store powers in
+mvals=seq(22,25,,10) #sequence of values from 22 to 25, containing 10
+
+for(m in 1:10){ #start of outer loop
+  mval=mvals[m] #grab a value from mvals
+  countt=0 #reset counts
+  countb=0
+  
+  for(i in 1:1000){ #loop to calculate power based on 1000 samples
+    x=rcauchy(20,location=mval,scale=1)
+    if(t.test(x,mu=22,alternative="greater")$p.value<.05){countt=countt+1}
+    if(SIGN.test(x,md=22,alternative="greater")$p.value<.05){countb=countb+1}
+  }
+  
+  pt[m]=countt/1000 #store power in pt for t-test
+  pb[m]=countb/1000 #store power in pb for Sign test
+}
+
+#Plot power against the values from 22 to 25 (true centers)
+plot(mvals,pb,type="l",xlab="True center",ylab="power",main="Cauchy, scale=1",col=2)
+lines(mvals,pt)
+legend(22,1,lty=c(1,1),col=c(1,2),legend=c("t-test","sign test"))
+```
+

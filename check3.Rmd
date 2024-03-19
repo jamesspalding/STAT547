@@ -17,8 +17,6 @@ The .Rdata file below contains two objects named A and B. A and B are both array
 #loading functions and data
 source("functions.R")
 load(paste0(getwd(),"/files/check3.RData"))
-# library(tidyverse)
-# library(abind) #Both libraries are included in the functions.R file.
 ```
 
 ```{r}
