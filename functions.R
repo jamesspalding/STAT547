@@ -66,7 +66,58 @@ misorientAngle = function(array, verbose = T){
 #misorientAngle(testDataArray, obs=10) #Angle of individual observation
 
 
+#----- Permutation Test -----#
+arrayPerm = function(array1, array2, nperms = 1000, alt = "two.sided", silent = F){
+  
+  #combine matrices
+  combinedMats = abind(array1,array2)
+  
+  #observed difference
+  meanmats = array(dim = c(3, 3, 2))
+  meanmats[,,1] = meanMat(array1)
+  meanmats[,,2] = meanMat(array2)
+  diffObs = misorientAngle(meanmats, verbose = F)
 
+  #permutation test
+  perms = c()
+  for(i in 1:nperms){
+    index=sample(1:dim(combinedMats)[3],dim(array1)[3]) 
+    permA=combinedMats[,,index]
+    permB=combinedMats[,,-index]
+    
+    tempArray = array(dim = c(3, 3, 2))
+    tempArray[,,1] = meanMat(permA)
+    tempArray[,,2] = meanMat(permB)
+    
+    perms[i] = misorientAngle(tempArray, verbose = F)
+  }
+  
+  
+  #Conclusion
+  pval = NA
+  
+  if(alt == "two.sided"){
+    #Two-tailed p-value: proportion of abs(permutations) at or more extreme than abs(observed)
+    pval = length(which(abs(perms)>=abs(diffObs)))/length(perms)
+  }
+  
+  if(alt == "greater"){
+    #right-tailed p-value: proportion of permutations at or more extreme than observed
+    pval = length(which(perms>=diffObs))/length(perms)
+  }
+  
+  if(alt == "less"){
+    #left-tailed p-value: proportion of permutations at or less extreme than observed
+    pval = length(which(perms>=diffObs))/length(perms)
+  }
+  
+  if(silent == F){
+    cat("Observed misorientation angle =",diffObs,
+    "\nP-value =",pval)
+  }
+  
+  invisible(c(diffObs,pval))
+}
 
 
 
