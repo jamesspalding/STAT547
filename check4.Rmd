@@ -16,26 +16,41 @@ library(BSDA)
 ```
 
 ```{r}
-arrayPerm(A,B)
+pvalGraphs = function(n,k){
+  data = generateData(n,k)
+  A = data[[1]]
+  B = data[[2]]
+  
+  result = arrayPerm(A,B,silent = T)
+  angle = result[[1]]
+  pval = result[[2]]
+  
+  return(list(angle,pval))
+}
+```
 
-
-
+```{r}
 pt=pb=rep(0,10) #set up a blank string to store powers in
-mvals=seq(22,25,,10) #sequence of values from 22 to 25, containing 10
+mvals=seq(0,.6,,10) #sequence of values from 22 to 25, containing 10
 
 for(m in 1:10){ #start of outer loop
+  
   mval=mvals[m] #grab a value from mvals
   countt=0 #reset counts
   countb=0
   
-  for(i in 1:1000){ #loop to calculate power based on 1000 samples
-    x=rcauchy(20,location=mval,scale=1)
-    if(t.test(x,mu=22,alternative="greater")$p.value<.05){countt=countt+1}
-    if(SIGN.test(x,md=22,alternative="greater")$p.value<.05){countb=countb+1}
+  for(i in 1:10){ #loop to calculate power based on 1000 samples
+    if(pvalGraphs(10,5)<.05){
+      countt=countt+1
+    }
+    if(pvalGraphs(20,5)<.05){
+      countb=countb+1
+    }
   }
   
-  pt[m]=countt/1000 #store power in pt for t-test
-  pb[m]=countb/1000 #store power in pb for Sign test
+  pt[m]=countt/10 #store power in pt for t-test
+  pb[m]=countb/10 #store power in pb for Sign test
+  
 }
 
 #Plot power against the values from 22 to 25 (true centers)
