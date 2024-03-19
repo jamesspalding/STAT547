@@ -31,28 +31,32 @@ pvalGraphs = function(n,k, ang){
 pvalGraphs(10,5, .1)
 ```
 
-```{r}
-samps = 100
+```{r, eval=F}
+ks = c(5, 20,50,100) #Takes ~2 hours to run
+for(k in ks){
 
+cat("\n########## k =", k, "##########\n")
+  
+samps = 100
 power=power50=power100=rep(0,30)
-mvals=seq(.02,.6,,30) #breaks at 0.
+mvals=seq(.02,.6,,30) #breaks at 0 about half the time.
 starttime = Sys.time()
 
 for(m in 1:30){
-
+cat(round(100*m/30,0),"%\n")
   mval=mvals[m]
   count10=0 
   count50=0
   count100=0
   
   for(i in 1:samps){ 
-    if(pvalGraphs(10,5,mval)<.05){
+    if(pvalGraphs(10,k,mval)<.05){
       count10=count10+1
     }
-    if(pvalGraphs(50,5,mval)<.05){
+    if(pvalGraphs(50,k,mval)<.05){
       count50=count50+1
     }
-    if(pvalGraphs(100,5,mval)<.05){
+    if(pvalGraphs(100,k,mval)<.05){
       count100=count100+1
     }
   }
@@ -63,16 +67,33 @@ for(m in 1:30){
 
 }
 
+#time
 endtime = Sys.time()
-endtime-starttime
+print(endtime-starttime)
 
-ggplot(mapping = aes(mvals,power))+
-  geom_smooth(color = "black", se=F)+ 
-  geom_smooth(aes(mvals,power50),color="blue",se=F)+
-  geom_smooth(aes(mvals,power100),color="red",se=F)+
-  theme_minimal()+
-  labs(x="Angle", y="Power", title="Power Graph")
+#output
+out = cbind(power,power50) %>% cbind(power100)
+write.csv(out, paste0("output",k,".csv"))
+}
 ```
 
+# Plots
 
+```{r}
+mvals=seq(.02,.6,,30)
+k5 = read.csv("output5.csv")
+k20 = read.csv("output20.csv")
+k50 = read.csv("output50.csv")
+k100 = read.csv("output100.csv")
+
+ggplot(data = k5, aes(mvals, power)) +
+  geom_line(aes(color = "Black")) + 
+  geom_line(aes(mvals, power50, color = "Blue")) +
+  geom_line(aes(mvals, power100, color = "Red")) +
+  scale_color_manual(values = c("Black" = "black", "Blue" = "blue", "Red" = "red")) +
+  labs(x = "Angle", y = "Power", title = "Power Graph k = 5")
+
+
+
+```
 
