@@ -25,12 +25,12 @@ generateData = function(n, k, ANG=.02){
       y=Q[1,3]
       x=Q[2,3]
       g=atan(y/x)
-      if (y/x>0) {g=ifelse(x>0,g,g+pi)}
+      if (y/x>=0) {g=ifelse(x>=0,g,g+pi)} #one of these needed an = to account for 0 values
       if (y/x<0) {g=ifelse(x<0,g+pi,g+2*pi)}
       x=Q[3,2]
       y=Q[3,1]
       a=atan(-y/x)
-      if (-y/x>0) {a=ifelse(-x>0,a,a+pi)}
+      if (-y/x>=0) {a=ifelse(-x>=0,a,a+pi)} #same here
       if (-y/x<0) {a=ifelse(-x<0,a+pi,a+2*pi)}}
     return(c(a,b,g))}
   
