@@ -21,3 +21,10 @@ TODO:
 - [x] Combine arrays
 - [x] Run permutation test
 - [x] Determine if arrays differ (they don't)
+      
+### Check-in 4
+
+TODO:
+- [x] Create function to utilize previous functions to generate a power graph
+- [x] Loop the process 1.5 million times to create permuted data
+- [x] Output graphs
