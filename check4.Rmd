@@ -1,12 +1,13 @@
 ---
-title: "Untitled"
+title: "Check-In 4"
 author: "James Spalding"
-date: "2024-03-19"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message=F,warning=F,echo=F)
 ```
 
 ```{r}
@@ -28,10 +29,12 @@ pvalGraphs = function(n,k, ang){
   return(pval)
 }
 
-pvalGraphs(10,5, .1)
+#pvalGraphs(10,5, 0.00001)
 ```
 
-```{r, eval=F}
+```{r, include=F, eval=F}
+#bulk of observations
+
 ks = c(5, 20,50,100) #Takes ~2 hours to run
 for(k in ks){
 
@@ -77,23 +80,128 @@ write.csv(out, paste0("output",k,".csv"))
 }
 ```
 
-# Plots
+```{r, include=F, eval=F}
+#special case: angle = 0
+#since it consistently errored when the angle was 0, I did these calculations separately so time wouldn't be wasted.
+
+k = 100 #I manually ran each of the 4 cases.
+samps = 100
+power=power50=power100=0
+
+
+mval=.000001 #used a very small number to avoid the divide by 0 error
+count10=0 
+count50=0
+count100=0
+
+for(i in 1:samps){ 
+  cat("\014")
+  cat(i, "%\n")
+  if(pvalGraphs(10,k,mval)<.05){
+    count10=count10+1
+  }
+  if(pvalGraphs(50,k,mval)<.05){
+    count50=count50+1
+  }
+  if(pvalGraphs(100,k,mval)<.05){
+    count100=count100+1
+  }
+}
+
+power=count10/samps
+power50=count50/samps
+power100=count100/samps
+
+
+
+#output
+(out = cbind(power,power50) %>% cbind(power100))
+```
+
+
+# Line plots
 
 ```{r}
-mvals=seq(.02,.6,,30)
-k5 = read.csv("output5.csv")
-k20 = read.csv("output20.csv")
-k50 = read.csv("output50.csv")
-k100 = read.csv("output100.csv")
+#hard coding results from above chunk so it doesnt need to run every time.
+k5ang0   = c(.04,.04,.01)
+k20ang0  = c(.03,.06,.04)
+k50ang0  = c(.03,.04,.04)
+k100ang0 = c(.05,.01,.04)
+  
+mvals=seq(0,.6,,31)
+k5   = rbind(k5ang0  ,read.csv("output5.csv"))
+k20  = rbind(k20ang0 ,read.csv("output20.csv"))
+k50  = rbind(k50ang0 ,read.csv("output50.csv"))
+k100 = rbind(k100ang0,read.csv("output100.csv"))
 
+##### Plots #####
 ggplot(data = k5, aes(mvals, power)) +
-  geom_line(aes(color = "Black")) + 
-  geom_line(aes(mvals, power50, color = "Blue")) +
-  geom_line(aes(mvals, power100, color = "Red")) +
-  scale_color_manual(values = c("Black" = "black", "Blue" = "blue", "Red" = "red")) +
-  labs(x = "Angle", y = "Power", title = "Power Graph k = 5")
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=5")+
+  ylim(0,1)
 
+ggplot(data = k20, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=20")+
+  ylim(0,1)
 
+ggplot(data = k50, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=50")+
+  ylim(0,1)
 
+ggplot(data = k100, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=100")+
+  ylim(0,1)
+
+```
+
+# Smoothed Plots
+
+```{r}
+ggplot(data = k5, aes(mvals, power)) +
+  geom_smooth(aes(color = "n=10"),se=F,method = "loess",size=.5) + 
+  geom_smooth(aes(mvals, power50, color = "n=50"),se=F,method = "loess",size=.5) +
+  geom_smooth(aes(mvals, power100, color = "n=100"),se=F,method = "loess",size=.5) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=5")+
+  ylim(0,1)
+
+ggplot(data = k20, aes(mvals, power)) +
+  geom_smooth(aes(color = "n=10"),se=F,method = "loess",size=.5) + 
+  geom_smooth(aes(mvals, power50, color = "n=50"),se=F,method = "loess",size=.5) +
+  geom_smooth(aes(mvals, power100, color = "n=100"),se=F,method = "loess",size=.5) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=20")+
+  ylim(0,1)
+
+ggplot(data = k50, aes(mvals, power)) +
+  geom_smooth(aes(color = "n=10"),se=F,method = "loess",size=.5) + 
+  geom_smooth(aes(mvals, power50, color = "n=50"),se=F,method = "loess",size=.5) +
+  geom_smooth(aes(mvals, power100, color = "n=100"),se=F,method = "loess",size=.5) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=50")+
+  ylim(0,1)
+
+ggplot(data = k100, aes(mvals, power)) +
+  geom_smooth(aes(color = "n=10"),se=F,method = "loess",size=.5) + 
+  geom_smooth(aes(mvals, power50, color = "n=50"),se=F,method = "loess",size=.5) +
+  geom_smooth(aes(mvals, power100, color = "n=100"),se=F,method = "loess",size=.5) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle", y = "Power",color = "k=100")+
+  ylim(0,1)
 ```
 
