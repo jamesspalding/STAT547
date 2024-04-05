@@ -9,7 +9,7 @@ makeArray = function(df){
   matArray = array(dim = c(3, 3, 0))
   
   for(i in 1:nrow(df)){
-    temp = matrix(testData[i,4:12], ncol = 3, byrow=F)
+    temp = matrix(df[i,4:12], ncol = 3, byrow=F)
     matArray = abind(matArray, temp, along = 3)
   }
   
