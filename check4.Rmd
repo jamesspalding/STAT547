@@ -11,7 +11,7 @@ knitr::opts_chunk$set(message=F,warning=F,echo=F)
 ```
 
 ```{r}
-source(paste0(getwd(),"/files/Power-graphs-mean.R")) #data
+source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R")) #data
 source("functions.R")
 library(BSDA)
 ```
@@ -129,10 +129,10 @@ k50ang0  = c(.03,.04,.04)
 k100ang0 = c(.05,.01,.04)
   
 mvals=seq(0,.6,,31)
-k5   = rbind(k5ang0  ,read.csv("output5.csv"))
-k20  = rbind(k20ang0 ,read.csv("output20.csv"))
-k50  = rbind(k50ang0 ,read.csv("output50.csv"))
-k100 = rbind(k100ang0,read.csv("output100.csv"))
+k5   = rbind(k5ang0  ,read.csv(paste0(getwd(),"/files/powerGraphs/output5.csv")))
+k20  = rbind(k20ang0 ,read.csv(paste0(getwd(),"/files/powerGraphs/output20.csv")))
+k50  = rbind(k50ang0 ,read.csv(paste0(getwd(),"/files/powerGraphs/output50.csv")))
+k100 = rbind(k100ang0,read.csv(paste0(getwd(),"/files/powerGraphs/output100.csv")))
 
 ##### Plots #####
 ggplot(data = k5, aes(mvals, power)) +
