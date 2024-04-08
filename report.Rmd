@@ -1,0 +1,99 @@
+---
+title: "STAT547 Final Report"
+author: "James Spalding"
+date: "2024-04-05"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("functions.R")
+source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R"))
+data = read.csv(paste0(getwd(),"/files/Data.csv"))
+```
+
+```{r}
+#data
+dataArray = makeArray(data)
+
+humanArray = data %>%
+  filter(Species == "homo") %>%
+  makeArray()
+
+baboonArray = data %>%
+  filter(Species == "papio") %>%
+  makeArray()
+
+chimpArray = data %>%
+  filter(Species == "pan") %>%
+  makeArray()
+```
+
+```{r}
+#TODO:
+#Test for difference in location of joint rotation by species
+#Perm: obs = mean matrix by species
+#      perm = shuffle cases and select 28 baboon, 20 chimp, 30 human
+
+humanObs  = meanMat(humanArray)
+baboonObs = meanMat(baboonArray)
+chimpObs  = meanMat(chimpArray)
+
+#permutation test
+perms = c()
+for(i in 1:1000){
+  
+  #Random sampled index, partitioned into 3 groups.
+  index = sample(1:78)
+  humanIndex  = sample(index, size = 30) ; index = index[-humanIndex]
+  baboonIndex = sample(index, size = 28) ; index = index[-baboonIndex]
+  chimpIndex  = sample(index, size = 20)
+  
+  
+  
+  tempData = data[index,]
+  permA=combinedMats[,,index]
+  permB=combinedMats[,,-index]
+  
+  tempArray = array(dim = c(3, 3, 2))
+  tempArray[,,1] = meanMat(permA)
+  tempArray[,,2] = meanMat(permB)
+  
+  perms[i] = misorientAngle(tempArray, verbose = F)
+}
+
+
+#Conclusion
+pval = NA
+```
+
+
+
+
+
+Introduction: Give an overview of the general type of data being considered and its structure
+(basically a brief overview of 3-D rotation data). Give an overview of the human, baboon, and
+chimp joint data that will be explored later. Feel free to use information on how the data was
+collected from the Brief Project Overview document for this.
+
+
+
+Permutation Test: Describe the permutation test for comparing the parameter of interest
+(spread or mean depending on what you worked on) for two populations. Include things such as
+what statistic is used and how it’s calculated, how the permutations are done, and how the p-
+value is calculated. This should have enough detail that another student familiar with 3-D
+rotation data could use what you’ve described to write their own code to implement the
+permutation test.
+
+
+
+Simulation Study: Discuss the simulation study done to explore power. What simulations were
+run and what general trends are you seeing in the graphs you ended up with? Do these results
+match what you’d expect to happen regarding change in sample size and change in spread
+(kappa)?
+
+
+
+Application to joint data: Discuss the results of applying your permutation test to the joint data.
+Which species were found to be significantly different for which joints?
+
