@@ -32,24 +32,26 @@ baboonPerm = array(dim = c(3, 3, 0))
 chimpPerm  = array(dim = c(3, 3, 0))
 
 for(i in 1:nperm){
-  #Random sampled index of length of data
+  #progress
   print(i/nperm)
+  
+  #Random sampled index of length of data
   index = sample(1:78)
   
   #Human
   humanIndex  = sample(index, size = 30) ; index = index[-humanIndex]
-  temp = meanMat(dataArray[,,humanIndex])
-  humanPerm = abind(humanPerm, temp, along = 3)
+  temp        = meanMat(dataArray[,,humanIndex])
+  humanPerm   = abind(humanPerm, temp, along = 3)
   
   #Baboon
   baboonIndex = sample(index, size = 28) ; index = index[-baboonIndex]
-  temp = meanMat(dataArray[,,baboonIndex])
-  baboonPerm = abind(baboonPerm, temp, along = 3)
+  temp        = meanMat(dataArray[,,baboonIndex])
+  baboonPerm  = abind(baboonPerm, temp, along = 3)
   
   #Chimp
   chimpIndex  = sample(index, size = 20)
-  temp = meanMat(dataArray[,,chimpIndex])
-  chimpPerm = abind(chimpPerm, temp, along = 3)
+  temp        = meanMat(dataArray[,,chimpIndex])
+  chimpPerm   = abind(chimpPerm, temp, along = 3)
 }
 
 
