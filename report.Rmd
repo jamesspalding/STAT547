@@ -7,27 +7,13 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 source("functions.R")
+source("species-joint-data.R")
 source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R"))
-data = read.csv(paste0(getwd(),"/files/Data.csv"))
 ```
 
-```{r}
-#data
-dataArray = makeArray(data)
-
-humanArray = data %>%
-  filter(Species == "homo") %>%
-  makeArray()
-
-baboonArray = data %>%
-  filter(Species == "papio") %>%
-  makeArray()
-
-chimpArray = data %>%
-  filter(Species == "pan") %>%
-  makeArray()
-```
+# Overall Species Comparisons
 
 ```{r}
 #TODO:
@@ -39,28 +25,34 @@ humanObs  = meanMat(humanArray)
 baboonObs = meanMat(baboonArray)
 chimpObs  = meanMat(chimpArray)
 
-#permutation test
-perms = c()
-for(i in 1:1000){
-  
-  #Random sampled index, partitioned into 3 groups.
+#permutation variables
+nperm = 10000
+humanPerm  = array(dim = c(3, 3, 0))
+baboonPerm = array(dim = c(3, 3, 0))
+chimpPerm  = array(dim = c(3, 3, 0))
+
+for(i in 1:nperm){
+  #Random sampled index of length of data
+  print(i/nperm)
   index = sample(1:78)
+  
+  #Human
   humanIndex  = sample(index, size = 30) ; index = index[-humanIndex]
+  temp = meanMat(dataArray[,,humanIndex])
+  humanPerm = abind(humanPerm, temp, along = 3)
+  
+  #Baboon
   baboonIndex = sample(index, size = 28) ; index = index[-baboonIndex]
+  temp = meanMat(dataArray[,,baboonIndex])
+  baboonPerm = abind(baboonPerm, temp, along = 3)
+  
+  #Chimp
   chimpIndex  = sample(index, size = 20)
-  
-  
-  
-  tempData = data[index,]
-  permA=combinedMats[,,index]
-  permB=combinedMats[,,-index]
-  
-  tempArray = array(dim = c(3, 3, 2))
-  tempArray[,,1] = meanMat(permA)
-  tempArray[,,2] = meanMat(permB)
-  
-  perms[i] = misorientAngle(tempArray, verbose = F)
+  temp = meanMat(dataArray[,,chimpIndex])
+  chimpPerm = abind(chimpPerm, temp, along = 3)
 }
+
+
 
 
 #Conclusion
