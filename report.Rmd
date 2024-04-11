@@ -13,52 +13,64 @@ source("species-joint-data.R")
 source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R"))
 ```
 
-# Overall Species Comparisons
+# Comparisons by joint
 
 ```{r}
-#TODO:
-#Test for difference in location of joint rotation by species
-#Perm: obs = mean matrix by species
-#      perm = shuffle cases and select 28 baboon, 20 chimp, 30 human
+#TODO: Create arrays filtered by joint
+```
 
-humanObs  = meanMat(humanArray)
-baboonObs = meanMat(baboonArray)
-chimpObs  = meanMat(chimpArray)
+# Comparisons by species
 
-#permutation variables
-nperm = 10000
-humanPerm  = array(dim = c(3, 3, 0))
-baboonPerm = array(dim = c(3, 3, 0))
-chimpPerm  = array(dim = c(3, 3, 0))
+```{r}
+#H0: Misorientation angle is the same between species
+#Ha: It isnt
 
-for(i in 1:nperm){
-  #progress
-  print(i/nperm)
-  
-  #Random sampled index of length of data
-  index = sample(1:78)
-  
-  #Human
-  humanIndex  = sample(index, size = 30) ; index = index[-humanIndex]
-  temp        = meanMat(dataArray[,,humanIndex])
-  humanPerm   = abind(humanPerm, temp, along = 3)
-  
-  #Baboon
-  baboonIndex = sample(index, size = 28) ; index = index[-baboonIndex]
-  temp        = meanMat(dataArray[,,baboonIndex])
-  baboonPerm  = abind(baboonPerm, temp, along = 3)
-  
-  #Chimp
-  chimpIndex  = sample(index, size = 20)
-  temp        = meanMat(dataArray[,,chimpIndex])
-  chimpPerm   = abind(chimpPerm, temp, along = 3)
-}
+arrayPerm(humanArray, chimpArray)
+
+arrayPerm(humanArray, baboonArray)
+
+arrayPerm(baboonArray, chimpArray)
+
+#Conclusion: Average misorientation angle is the same for all contrasts between species.
+```
+
+# Comparisons by joint and species
+
+```{r}
+#H0: Misorientation angle of specific joint is the same between species
+#Ha: It isnt
+
+### CubCal ###
+arrayPerm(human.CubCal, chimp.CubCal, alt = "greater") #Significant
+arrayPerm(human.CubCal, baboon.CubCal)
+arrayPerm(baboon.CubCal, chimp.CubCal)
+#Humans have greater misorient angle than chimps.
 
 
+### Mt5CubAP (N/A for Baboon) ###
+arrayPerm(human.CubCal, chimp.CubCal,alt = "greater") #Significant
+#Humans have greater misorient angle than chimps.
 
 
-#Conclusion
-pval = NA
+### NavCub ###
+arrayPerm(human.NavCub, chimp.NavCub)
+arrayPerm(human.NavCub, baboon.NavCub) #Close, but not quite
+arrayPerm(baboon.NavCub, chimp.NavCub)
+#None significant
+
+
+### NavTal ###
+arrayPerm(human.NavTal, chimp.NavTal, alt = "greater") #Significant
+arrayPerm(human.NavTal, baboon.NavTal, alt = "greater") #Significant
+arrayPerm(baboon.NavTal, chimp.NavTal) #Close, but not quite
+#Humans have greater misorient angle than both chimps and baboons.
+
+
+### TalCal ###
+arrayPerm(human.TalCal, chimp.TalCal, alt = "greater") #Significant
+arrayPerm(human.TalCal, baboon.TalCal, alt = "greater") #Significant
+arrayPerm(baboon.TalCal, chimp.TalCal)
+#Humans have greater misorient angle than both chimps and baboons.
 ```
 
 
