@@ -67,7 +67,7 @@ misorientAngle = function(array, verbose = T){
 
 
 #----- Permutation Test -----#
-arrayPerm = function(array1, array2, nperms = 1000, alt = "two.sided", silent = F){
+arrayPerm = function(array1, array2, nperms = 10000, alt = "two.sided", silent = F){
   
   #combine matrices
   combinedMats = abind(array1,array2)
@@ -108,11 +108,11 @@ arrayPerm = function(array1, array2, nperms = 1000, alt = "two.sided", silent = 
   
   if(alt == "less"){
     #left-tailed p-value: proportion of permutations at or less extreme than observed
-    pval = length(which(perms>=diffObs))/length(perms)
+    pval = length(which(perms<=diffObs))/length(perms)
   }
   
   if(silent == F){
-    cat("Observed misorientation angle =",diffObs,
+    cat("\nObserved misorientation angle =",diffObs,
     "\nP-value =",pval)
     invisible(list(diffObs,pval))
 
