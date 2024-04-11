@@ -13,6 +13,24 @@ humanArray  = makeArray(humanData)
 baboonArray = makeArray(baboonData)
 chimpArray  = makeArray(chimpData)
 
+#Data filtered to joint
+### CubCal ###
+array.CubCal = data %>% filter(Joint == " CubCal") %>% makeArray()
+
+### Mt5CubAP (N/A for Baboon) ###
+array.Mt5CubAP = data %>% filter(Joint == " Mt5CubAP") %>% makeArray()
+
+### NavCub ###
+array.NavCub = data %>% filter(Joint == " NavCub") %>% makeArray()
+
+### NavTal ###
+array.NavTal = data %>% filter(Joint == " NavTal") %>% makeArray()
+
+### TalCal ###
+array.TalCal = data %>% filter(Joint == " TalCal") %>% makeArray()
+
+
+
 #Data filtered to species+joint
   #Human
   human.CubCal   = humanData %>% filter(Joint == " CubCal") %>% makeArray()
