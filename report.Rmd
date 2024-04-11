@@ -6,24 +6,46 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(include = F, eval = F, echo = F)
 
 source("functions.R")
 source("species-joint-data.R")
 source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R"))
 ```
 
+```{r}
 # Comparisons by joint
 
-```{r}
-#TODO: Create arrays filtered by joint
+#H0: Misorientation angle is the same between joints
+#Ha: It isnt
+
+#Bonferroni adjustment: .05/10 = .005
+
+arrayPerm(array.CubCal, array.Mt5CubAP)
+arrayPerm(array.CubCal, array.NavCub)
+arrayPerm(array.CubCal, array.NavTal)
+arrayPerm(array.CubCal, array.TalCal, alt = "greater") #
+
+arrayPerm(array.Mt5CubAP, array.NavCub)
+arrayPerm(array.Mt5CubAP, array.NavTal, alt = "greater") #
+arrayPerm(array.Mt5CubAP, array.TalCal, alt = "greater") #
+
+arrayPerm(array.NavCub, array.NavTal)
+arrayPerm(array.NavCub, array.TalCal, alt = "greater") #
+
+arrayPerm(array.NavTal, array.TalCal, alt = "greater") #
 ```
 
-# Comparisons by species
+
 
 ```{r}
+# Comparisons by species
+
 #H0: Misorientation angle is the same between species
 #Ha: It isnt
+
+#Bonferroni adjustment: .05/3 = .0167
+
 
 arrayPerm(humanArray, chimpArray)
 
@@ -34,44 +56,98 @@ arrayPerm(baboonArray, chimpArray)
 #Conclusion: Average misorientation angle is the same for all contrasts between species.
 ```
 
-# Comparisons by joint and species
 
 ```{r}
+# Comparisons by joint and species
+
 #H0: Misorientation angle of specific joint is the same between species
 #Ha: It isnt
 
+#Bonferroni adjustment: .05/3 = .0167
+
 ### CubCal ###
-arrayPerm(human.CubCal, chimp.CubCal, alt = "greater") #Significant
+arrayPerm(human.CubCal, chimp.CubCal)
 arrayPerm(human.CubCal, baboon.CubCal)
 arrayPerm(baboon.CubCal, chimp.CubCal)
-#Humans have greater misorient angle than chimps.
+#No Diff
 
 
 ### Mt5CubAP (N/A for Baboon) ###
-arrayPerm(human.CubCal, chimp.CubCal,alt = "greater") #Significant
+#alpha = .05
+arrayPerm(human.CubCal, chimp.CubCal, alt = "greater") #
 #Humans have greater misorient angle than chimps.
 
 
 ### NavCub ###
 arrayPerm(human.NavCub, chimp.NavCub)
-arrayPerm(human.NavCub, baboon.NavCub) #Close, but not quite
+arrayPerm(human.NavCub, baboon.NavCub)
 arrayPerm(baboon.NavCub, chimp.NavCub)
 #None significant
 
 
 ### NavTal ###
-arrayPerm(human.NavTal, chimp.NavTal, alt = "greater") #Significant
-arrayPerm(human.NavTal, baboon.NavTal, alt = "greater") #Significant
-arrayPerm(baboon.NavTal, chimp.NavTal) #Close, but not quite
+arrayPerm(human.NavTal, chimp.NavTal, alt = "greater") #
+arrayPerm(human.NavTal, baboon.NavTal, alt = "greater") #
+arrayPerm(baboon.NavTal, chimp.NavTal)
 #Humans have greater misorient angle than both chimps and baboons.
 
 
 ### TalCal ###
-arrayPerm(human.TalCal, chimp.TalCal, alt = "greater") #Significant
-arrayPerm(human.TalCal, baboon.TalCal, alt = "greater") #Significant
+arrayPerm(human.TalCal, chimp.TalCal)
+arrayPerm(human.TalCal, baboon.TalCal, alt = "greater") #
 arrayPerm(baboon.TalCal, chimp.TalCal)
 #Humans have greater misorient angle than both chimps and baboons.
 ```
+
+# Results
+
+First, I looked to see if there were differences in the average misorientation angle between the different joints studied; independent of the species. In order to check this, I performed permutation tests to test for differences between joints. Since there were 5 joints in the study, 10 comparisons were computed. A test-wise $\alpha$ level of 0.005 was used, which leads to a family-wide $\alpha$ level of 0.05.
+
+This test resulted in significant evidence of the following differences in mean misorientation angles:
+
+* CubCal > TalCal
+
+* Mt5CubAP > NavTal
+
+* Mt5CubAP > TalCal
+
+* NavCub > TalCal
+
+* NavTal > TalCal
+
+```{r, eval=T, echo = T}
+Comparison = c("CubCal - Mt5CubAP",
+               "CubCal - NavCub",
+               "CubCal - NavTal",
+               "CubCal - TalCal", #
+               "Mt5CubAP - NavCub",
+               "Mt5CubAP - NavTal", #
+               "Mt5CubAP - TalCal", #
+               "NavCub - NavTal",
+               "NavCub - TalCal", #
+               "NavTal - TalCal") #
+
+PValue = c("0.0664", "0.4577", "0.0358", "0.0000 *", "0.3474", "0.0008 *", "0.0000 *", "0.0287", "0.0010 *", "0.0010 *")
+
+Result = c("CubCal = Mt5CubAP",
+           "CubCal = NavCub",
+           "CubCal = NavTal",
+           "CubCal > TalCal", #
+           "Mt5CubAP = NavCub",
+           "Mt5CubAP > NavTal", #
+           "Mt5CubAP > TalCal", #
+           "NavCub = NavTal",
+           "NavCub > TalCal", #
+           "NavTal > TalCal") #
+
+data.frame(Comparison, PValue, Result)
+```
+
+
+There was no significant differences in the tests between CubCal and Mt5CubAP, CubCal and NavCub, CubCal and NavTal, Mt5CubAP and NavCub, and NavCub and NavTal.
+
+
+
 
 
 
