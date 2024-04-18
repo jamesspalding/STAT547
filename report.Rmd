@@ -6,14 +6,17 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(include = F, eval = F, echo = F)
+knitr::opts_chunk$set(echo = F)
 
 source("functions.R")
 source("species-joint-data.R")
 source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R"))
+
+library(gt)
+library(gtExtras)
 ```
 
-```{r}
+```{r, eval = F}
 # Comparisons by joint
 
 #H0: Misorientation angle is the same between joints
@@ -38,7 +41,7 @@ arrayPerm(array.NavTal, array.TalCal, alt = "greater") #
 
 
 
-```{r}
+```{r, eval = F}
 # Comparisons by species
 
 #H0: Misorientation angle is the same between species
@@ -57,7 +60,7 @@ arrayPerm(baboonArray, chimpArray)
 ```
 
 
-```{r}
+```{r, eval = F}
 # Comparisons by joint and species
 
 #H0: Misorientation angle of specific joint is the same between species
@@ -115,8 +118,9 @@ This test resulted in significant evidence of the following differences in mean 
 
 * NavTal > TalCal
 
-```{r, eval=T, echo = T}
-Comparison = c("CubCal - Mt5CubAP",
+```{r}
+##### Joint P = .005 #####
+jointComp = c("CubCal - Mt5CubAP",
                "CubCal - NavCub",
                "CubCal - NavTal",
                "CubCal - TalCal", #
@@ -127,9 +131,9 @@ Comparison = c("CubCal - Mt5CubAP",
                "NavCub - TalCal", #
                "NavTal - TalCal") #
 
-PValue = c("0.0664", "0.4577", "0.0358", "0.0000 *", "0.3474", "0.0008 *", "0.0000 *", "0.0287", "0.0010 *", "0.0010 *")
+jointP = c("0.0664  ", "0.4577  ", "0.0358  ", "0.0000 *", "0.3474  ", "0.0008 *", "0.0000 *", "0.0287  ", "0.0010 *", "0.0010 *")
 
-Result = c("CubCal = Mt5CubAP",
+jointResult = c("CubCal = Mt5CubAP",
            "CubCal = NavCub",
            "CubCal = NavTal",
            "CubCal > TalCal", #
@@ -140,7 +144,67 @@ Result = c("CubCal = Mt5CubAP",
            "NavCub > TalCal", #
            "NavTal > TalCal") #
 
-data.frame(Comparison, PValue, Result)
+
+##### Species P = .0167 #####
+specComp = c("Human - Chimp",
+             "Human - Baboon",
+             "Baboon - Chimp",
+             "","","","","","","")
+
+specP = c("0.3726  ", "0.7373  ", "0.7128  ",
+             "","","","","","","")
+
+specResult = c("Human = Chimp",
+             "Human = Baboon",
+             "Baboon = Chimp",
+             "","","","","","","")
+
+
+##### Species+Joint P = .0167 (.05 for m5) #####
+ccResult = c("","","") ; m5Result = c("Human > Chimp","",""); ncResult = c("","",""); ntResult = c("Human > Chimp","Human > Baboon",""); tcResult = c("","Human > Baboon","")
+
+res = c("Human - Chimp",
+        "Human - Baboon",
+        "Baboon - Chimp")#,
+        #"Results", "", "")
+
+ccP = c("0.0511  ", "0.1555  ", "0.5232  ") #, ccResult)
+
+m5P = c("0.0441 *", "", "") #, m5Result)                 
+
+ncP = c("0.8586  ", "0.0847  ", "0.2387  ") #, ncResult) 
+
+ntP = c("0.0004 *", "0.0001 *", "0.0685  ") #, ntResult) 
+
+tcP = c("0.0334  ", "0.0014 *", "0.2595  ") #, tcResult) 
+
+tab1 = data.frame(jointComp, jointP, jointResult,
+                  specComp, specP, specResult)
+
+tab2 = data.frame(res,
+                  m5P, ccP, ncP, ntP, tcP)
+
+
+tab1 %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  tab_header(title="Table 1") %>%
+  tab_spanner(label="Joint Comparisons", columns = c(jointComp, jointP, jointResult)) %>%
+  tab_spanner(label="Species Comparisons", columns = c(specComp, specP, specResult)) %>%
+  cols_label( jointComp = "Comparison", specComp = "Comparison",
+              jointP = "P Value", specP = "P Value",
+              jointResult = "Result", specResult = "Result")
+
+tab2 %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  tab_header(title="Table 2", subtitle = "Species Comparisons by Joint") %>%
+  cols_label( res           = "Comparison",
+              ccP           = "CubCal",
+              m5P           = "Mt5CubAP",
+              ncP           = "NavCub",
+              ntP           = "NavTal",
+              tcP           = "TalCal")
 ```
 
 
