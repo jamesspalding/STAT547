@@ -102,21 +102,29 @@ arrayPerm(baboon.TalCal, chimp.TalCal)
 #Humans have greater misorient angle than both chimps and baboons.
 ```
 
-# Results
+# Introduction
 
-First, I looked to see if there were differences in the average misorientation angle between the different joints studied; independent of the species. In order to check this, I performed permutation tests to test for differences between joints. Since there were 5 joints in the study, 10 comparisons were computed. A test-wise $\alpha$ level of 0.005 was used, which leads to a family-wide $\alpha$ level of 0.05.
+**The goal of this paper is to use 3-D rotational data to discover similarities and differences in foot joints between humans and some of our closest relatives: chimpanzees and baboons.**
 
-This test resulted in significant evidence of the following differences in mean misorientation angles:
+Our test statistic, Average Misorientation Angle (AMA) is the mean of the misorientation angles at different times, measured in radian. It is the AMA measures the smallest angle in of rotation needed to get from rotation $O_i$ to mean rotation $M$. Each individual angle is calculated with the following formula:
 
-* CubCal > TalCal
+$$\text{mis}(O_i,M) = arccos \frac{trace(O^T_iM)-1}{2}$$
 
-* Mt5CubAP > NavTal
+The data provided contains 3D rotation coordinates for 6 humans, 4 chimpanzees, 7 baboons. Each of these subjects had tests performed on CubCal, mt5CubAP, NavCub, NavTal, and TalCal joints. 
 
-* Mt5CubAP > TalCal
+# Permutation Tests
 
-* NavCub > TalCal
+A permutation test is a test that involves resampling small samples with different combinations of variables to simulate entire populations. The null hypothesis of a permutation test states that two samples come from the same distribution; the alternative hypothesis states that they come from different distributions.
 
-* NavTal > TalCal
+The p-value is computed by taking the mean misorientation angle from the observed data, shuffling/permuting all the data, taking a random sample of the same size as the observed data (permuted data), taking the mean misorientation angle of the permuted data, and comparing it to the observed value. This process is then repeated a large number of times and counted how many times the observed angle > permuted angle. This number is then divided by the number of permutations to get the p-value.
+
+A variety permutation test will be applied to my data to determine whether or not the AMAs broadly differ between species and joints, as well as specific joints between species. Each test was conducted using 10,000 permutations.
+
+\newpage
+
+First, I looked to see if there were differences in the AMA between the different joints studied; independent of the species. In order to check this, I performed permutation tests to test for differences between joints. Since there were 5 joints in the study, 10 comparisons were computed. A test-wise $\alpha$ level of 0.005 was used, which leads to a family-wide $\alpha$ level of 0.05.
+
+Overall orientation angle by species was also tested using the same procedure. As 3 tests were conducted, a test-wise $\alpha$ of 0.0167 was used. However, none of the species were overall significantly different from each other. The values and results are shown in *table 1* below.
 
 ```{r}
 ##### Joint P = .005 #####
@@ -131,7 +139,7 @@ jointComp = c("CubCal - Mt5CubAP",
                "NavCub - TalCal", #
                "NavTal - TalCal") #
 
-jointP = c("0.0664  ", "0.4577  ", "0.0358  ", "0.0000 *", "0.3474  ", "0.0008 *", "0.0000 *", "0.0287  ", "0.0010 *", "0.0010 *")
+jointP = c("0.0664", "0.4577", "0.0358", "0.0000", "0.3474", "0.0008", "0.0000", "0.0287", "0.0010", "0.0010")
 
 jointResult = c("CubCal = Mt5CubAP",
            "CubCal = NavCub",
@@ -168,23 +176,24 @@ res = c("Human - Chimp",
         "Baboon - Chimp")#,
         #"Results", "", "")
 
-ccP = c("0.0511  ", "0.1555  ", "0.5232  ") #, ccResult)
+ccP = c("0.0511", "0.1555 ", "0.5232") #, ccResult)
 
-m5P = c("0.0441 *", "", "") #, m5Result)                 
+m5P = c("0.0441", "", "") #, m5Result)                 
 
-ncP = c("0.8586  ", "0.0847  ", "0.2387  ") #, ncResult) 
+ncP = c("0.8586", "0.0847", "0.2387 ") #, ncResult) 
 
-ntP = c("0.0004 *", "0.0001 *", "0.0685  ") #, ntResult) 
+ntP = c("0.0004", "0.0001", "0.0685") #, ntResult) 
 
-tcP = c("0.0334  ", "0.0014 *", "0.2595  ") #, tcResult) 
+tcP = c("0.0334", "0.0014", "0.2595") #, tcResult) 
 
 tab1 = data.frame(jointComp, jointP, jointResult,
                   specComp, specP, specResult)
 
 tab2 = data.frame(res,
                   m5P, ccP, ncP, ntP, tcP)
+```
 
-
+```{r}
 tab1 %>%
   gt() %>%
   gt_theme_nytimes() %>%
@@ -194,7 +203,11 @@ tab1 %>%
   cols_label( jointComp = "Comparison", specComp = "Comparison",
               jointP = "P Value", specP = "P Value",
               jointResult = "Result", specResult = "Result")
+```
 
+Next, I performed the permutation test separated by both joint *and* species. Once again, all but one of these tests used an $\alpha$ level of 0.0167, as there were 3 comparisons per joint. The Mt5CubAP joint was not measured in the baboon, leading to only 1 comparison; thus an $\alpha$ level of 0.05 could be used. These tests are shown below in *table 2*:
+
+```{r}
 tab2 %>%
   gt() %>%
   gt_theme_nytimes() %>%
@@ -207,29 +220,26 @@ tab2 %>%
               tcP           = "TalCal")
 ```
 
+**Table 2 Results**
 
-There was no significant differences in the tests between CubCal and Mt5CubAP, CubCal and NavCub, CubCal and NavTal, Mt5CubAP and NavCub, and NavCub and NavTal.
+* Mt5CubAP: Human > Chimp
 
+* NavTal: Human > Chimp, Human > Baboon
 
+* TalCal: Human > Baboon
 
+In conclusion, there is no significant broad difference in AMA between humans, chimpanzees, and baboons. However, there is a significant evidence that humans differ from the other two species in various specefic joints. Humans were found to have higher a AMA than chimpanzees in the Mt5CubAP and NavTal joints as well as a higher AMA than baboons in TalCal and NavTal joints. Of these joints, Mt5CubAP was found to have a higher AMA than both the NavTal and TalCal, and NacTal higher than TalCal.
 
-
-
-
-
-Introduction: Give an overview of the general type of data being considered and its structure
-(basically a brief overview of 3-D rotation data). Give an overview of the human, baboon, and
-chimp joint data that will be explored later. Feel free to use information on how the data was
-collected from the Brief Project Overview document for this.
+\newpage
 
 
 
-Permutation Test: Describe the permutation test for comparing the parameter of interest
-(spread or mean depending on what you worked on) for two populations. Include things such as
-what statistic is used and how it’s calculated, how the permutations are done, and how the p-
-value is calculated. This should have enough detail that another student familiar with 3-D
-rotation data could use what you’ve described to write their own code to implement the
-permutation test.
+
+
+
+
+
+
 
 
 
