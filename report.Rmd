@@ -14,6 +14,7 @@ source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R"))
 
 library(gt)
 library(gtExtras)
+library(gtable)
 ```
 
 ```{r, eval = F}
@@ -112,9 +113,7 @@ $$\text{mis}(O_i,M) = arccos \frac{trace(O^T_iM)-1}{2}$$
 
 The data provided contains 3D rotation coordinates for 6 humans, 4 chimpanzees, 7 baboons. Each of these subjects had tests performed on CubCal, mt5CubAP, NavCub, NavTal, and TalCal joints. 
 
-# Permutation Tests
-
-A permutation test is a test that involves resampling small samples with different combinations of variables to simulate entire populations. The null hypothesis of a permutation test states that two samples come from the same distribution; the alternative hypothesis states that they come from different distributions.
+Given such a small sample size, **permutation tests** will be used to carry out analysis. A permutation test is a test that involves resampling small samples with different combinations of variables to simulate entire populations. The null hypothesis of a permutation test states that two samples come from the same distribution; the alternative hypothesis states that they come from different distributions.
 
 The p-value is computed by taking the mean misorientation angle from the observed data, shuffling/permuting all the data, taking a random sample of the same size as the observed data (permuted data), taking the mean misorientation angle of the permuted data, and comparing it to the observed value. This process is then repeated a large number of times and counted how many times the observed angle > permuted angle. This number is then divided by the number of permutations to get the p-value.
 
@@ -122,9 +121,11 @@ A variety permutation test will be applied to my data to determine whether or no
 
 \newpage
 
-First, I looked to see if there were differences in the AMA between the different joints studied; independent of the species. In order to check this, I performed permutation tests to test for differences between joints. Since there were 5 joints in the study, 10 comparisons were computed. A test-wise $\alpha$ level of 0.005 was used, which leads to a family-wide $\alpha$ level of 0.05.
+# Permutation Tests
 
-Overall orientation angle by species was also tested using the same procedure. As 3 tests were conducted, a test-wise $\alpha$ of 0.0167 was used. However, none of the species were overall significantly different from each other. The values and results are shown in *table 1* below.
+First, I looked to see if there were differences in the AMA between the different joints studied; independent of the species. In order to check this, I performed permutation tests to test for differences between joints. To account for multiple comparisons, a test-wise $\alpha$ level of 0.005 was used, which leads to a family-wise $\alpha$ level of 0.05.
+
+Overall orientation angle by species was also tested using the same procedure. As 3 tests were conducted, a test-wise $\alpha$ of 0.0167 was used. However, none of the species were overall significantly different from each other. The values and results of both of these tests are shown in *table 1* below.
 
 ```{r}
 ##### Joint P = .005 #####
@@ -232,8 +233,93 @@ In conclusion, there is no significant broad difference in AMA between humans, c
 
 \newpage
 
+# Power Simulation
 
+The power of a test is defined as $P=1-\beta$, or the probability rejecting the null hypothesis when it is false. A test's power falls between 0 and 1 and can be determined by dividing the amount of times the null hypothesis was correctly rejected by the sample size. A higher power is desired, as this implies the test has a lower probability of resulting in a false negative.
 
+To determine the power of the permutation tests conducted above, I ran a simulation. The distribution we are using has a spread parameter $\kappa$ which governs the spread between joints with a lower $\kappa$ resulting in a lower spread. I ran the simulation four times while changing parameters $\kappa$ and sample size $n$. I repeated the test 30 times for the 4 $\kappa$ parameters: 5, 20, 50, and 100 as well as the 3 $n$ values: 10, 50, and 100. As previously mentioned, each test contains 10,000 permutations, so a total of 3.6 million tests were ran. The resulting cumulative density functions (CDF) are shown in *figure 1* below:  
+
+```{r, echo = F, message = F, error=F, warning=F}
+library(gridExtra)
+library(grid)
+library(cowplot)
+
+k5ang0   = c(.04,.04,.01)
+k20ang0  = c(.03,.06,.04)
+k50ang0  = c(.03,.04,.04)
+k100ang0 = c(.05,.01,.04)
+  
+mvals=seq(0,.6,,31)
+k5   = rbind(k5ang0  ,read.csv(paste0(getwd(),"/files/powerGraphs/output5.csv")))
+k20  = rbind(k20ang0 ,read.csv(paste0(getwd(),"/files/powerGraphs/output20.csv")))
+k50  = rbind(k50ang0 ,read.csv(paste0(getwd(),"/files/powerGraphs/output50.csv")))
+k100 = rbind(k100ang0,read.csv(paste0(getwd(),"/files/powerGraphs/output100.csv")))
+
+##### Plots #####
+
+p1 = ggplot(data = k5, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle (k=5)", y = "Power",color = "k=5")+
+  ylim(0,1)+
+  theme(legend.position = "none")
+
+p2 = ggplot(data = k20, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle (k=20)", y = "Power",color = "k=20")+
+  ylim(0,1)+
+  theme(legend.position = "none")
+
+p3 = ggplot(data = k50, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle (k=50)", y = "Power",color = "k=50")+
+  ylim(0,1)+
+  theme(legend.position = "none")
+
+p4 = ggplot(data = k100, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "Angle (k=100)", y = "Power",color = "k=100")+
+  ylim(0,1)+
+  theme(legend.position = "none")
+
+grid.arrange(p1,p2,p3,p4,nrow=2)
+```
+
+```{r,fig.align='center',fig.cap='Power graphs'}
+p0 = ggplot(data = k5, aes(mvals, power)) +
+  geom_line(aes(color = "n=10")) + 
+  geom_line(aes(mvals, power50, color = "n=50")) +
+  geom_line(aes(mvals, power100, color = "n=100")) +
+  scale_color_manual(values = c("n=10" = "black", "n=50" = "blue", "n=100" = "red")) +
+  labs(x = "", y = "",color = "")+
+  ylim(0,1)+
+  theme(legend.direction = "horizontal")
+
+#https://www.geeksforgeeks.org/add-common-legend-to-combined-ggplot2-plots-in-r/
+
+get_only_legend <- function(plot) { 
+  plot_table <- ggplot_gtable(ggplot_build(plot)) 
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box") 
+  legend <- plot_table$grobs[[legend_plot]] 
+  return(legend) 
+}
+
+legend = get_only_legend(p0)
+
+grid.newpage()
+grid.draw(legend)
+```
 
 
 
