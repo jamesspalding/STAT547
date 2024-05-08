@@ -15,6 +15,9 @@ source(paste0(getwd(),"/files/powerGraphs/Power-graphs-mean.R"))
 library(gt)
 library(gtExtras)
 library(gtable)
+library(grid)
+library(gridExtra)
+library(cowplot)
 ```
 
 ```{r, eval = F}
@@ -28,16 +31,16 @@ library(gtable)
 arrayPerm(array.CubCal, array.Mt5CubAP)
 arrayPerm(array.CubCal, array.NavCub)
 arrayPerm(array.CubCal, array.NavTal)
-arrayPerm(array.CubCal, array.TalCal, alt = "greater") #
+arrayPerm(array.CubCal, array.TalCal, alt = "greater") #.31
 
 arrayPerm(array.Mt5CubAP, array.NavCub)
-arrayPerm(array.Mt5CubAP, array.NavTal, alt = "greater") #
-arrayPerm(array.Mt5CubAP, array.TalCal, alt = "greater") #
+arrayPerm(array.Mt5CubAP, array.NavTal, alt = "greater") #.23
+arrayPerm(array.Mt5CubAP, array.TalCal, alt = "greater") #.38
 
 arrayPerm(array.NavCub, array.NavTal)
-arrayPerm(array.NavCub, array.TalCal, alt = "greater") #
+arrayPerm(array.NavCub, array.TalCal, alt = "greater") #.44
 
-arrayPerm(array.NavTal, array.TalCal, alt = "greater") #
+arrayPerm(array.NavTal, array.TalCal, alt = "greater") #.17
 ```
 
 
@@ -78,7 +81,7 @@ arrayPerm(baboon.CubCal, chimp.CubCal)
 
 ### Mt5CubAP (N/A for Baboon) ###
 #alpha = .05
-arrayPerm(human.CubCal, chimp.CubCal, alt = "greater") #
+arrayPerm(human.CubCal, chimp.CubCal, alt = "greater") #.16
 #Humans have greater misorient angle than chimps.
 
 
@@ -90,15 +93,15 @@ arrayPerm(baboon.NavCub, chimp.NavCub)
 
 
 ### NavTal ###
-arrayPerm(human.NavTal, chimp.NavTal, alt = "greater") #
-arrayPerm(human.NavTal, baboon.NavTal, alt = "greater") #
+arrayPerm(human.NavTal, chimp.NavTal, alt = "greater") #.2
+arrayPerm(human.NavTal, baboon.NavTal, alt = "greater") #.27
 arrayPerm(baboon.NavTal, chimp.NavTal)
 #Humans have greater misorient angle than both chimps and baboons.
 
 
 ### TalCal ###
 arrayPerm(human.TalCal, chimp.TalCal)
-arrayPerm(human.TalCal, baboon.TalCal, alt = "greater") #
+arrayPerm(human.TalCal, baboon.TalCal, alt = "greater") #.27
 arrayPerm(baboon.TalCal, chimp.TalCal)
 #Humans have greater misorient angle than both chimps and baboons.
 ```
@@ -111,19 +114,23 @@ Our test statistic, Average Misorientation Angle (AMA) is the mean of the misori
 
 $$\text{mis}(O_i,M) = arccos \frac{trace(O^T_iM)-1}{2}$$
 
-The data provided contains 3D rotation coordinates for 6 humans, 4 chimpanzees, 7 baboons. Each of these subjects had tests performed on CubCal, mt5CubAP, NavCub, NavTal, and TalCal joints. 
+The data provided contains 3D rotation coordinates for 6 humans, 4 chimpanzees, 7 baboons. Each of these subjects had tests performed on CubCal, mt5CubAP, NavCub, NavTal, and TalCal joints. The structure of one of the observations is shown below:
+
+```{r}
+dataArray[,,sample(1:78,1)]
+```
 
 Given such a small sample size, **permutation tests** will be used to carry out analysis. A permutation test is a test that involves resampling small samples with different combinations of variables to simulate entire populations. The null hypothesis of a permutation test states that two samples come from the same distribution; the alternative hypothesis states that they come from different distributions.
 
 The p-value is computed by taking the mean misorientation angle from the observed data, shuffling/permuting all the data, taking a random sample of the same size as the observed data (permuted data), taking the mean misorientation angle of the permuted data, and comparing it to the observed value. This process is then repeated a large number of times and counted how many times the observed angle > permuted angle. This number is then divided by the number of permutations to get the p-value.
 
-A variety permutation test will be applied to my data to determine whether or not the AMAs broadly differ between species and joints, as well as specific joints between species. Each test was conducted using 10,000 permutations.
+A variety permutation tests will be applied to my data to determine whether or not the AMAs broadly differ between species and joints, as well as specific joints between species. Each test was conducted using 10,000 permutations.
 
 \newpage
 
 # Permutation Tests
 
-First, I looked to see if there were differences in the AMA between the different joints studied; independent of the species. In order to check this, I performed permutation tests to test for differences between joints. To account for multiple comparisons, a test-wise $\alpha$ level of 0.005 was used, which leads to a family-wise $\alpha$ level of 0.05.
+First, we looked to see if there were differences in the AMA between the different joints studied; independent of the species. In order to check this, we performed permutation tests to test for differences between joints. To account for multiple comparisons, a test-wise $\alpha$ level of 0.005 was used, which leads to a family-wise $\alpha$ level of 0.05.
 
 Overall orientation angle by species was also tested using the same procedure. As 3 tests were conducted, a test-wise $\alpha$ of 0.0167 was used. However, none of the species were overall significantly different from each other. The values and results of both of these tests are shown in *table 1* below.
 
@@ -206,7 +213,7 @@ tab1 %>%
               jointResult = "Result", specResult = "Result")
 ```
 
-Next, I performed the permutation test separated by both joint *and* species. Once again, all but one of these tests used an $\alpha$ level of 0.0167, as there were 3 comparisons per joint. The Mt5CubAP joint was not measured in the baboon, leading to only 1 comparison; thus an $\alpha$ level of 0.05 could be used. These tests are shown below in *table 2*:
+Next, we performed the permutation test separated by both joint *and* species. Once again, all but one of these tests used an $\alpha$ level of 0.0167, as there were 3 comparisons per joint. The Mt5CubAP joint was not measured in the baboon, leading to only 1 comparison; thus an $\alpha$ level of 0.05 could be used. These tests are shown below in *table 2*:
 
 ```{r}
 tab2 %>%
@@ -229,21 +236,15 @@ tab2 %>%
 
 * TalCal: Human > Baboon
 
-In conclusion, there is no significant broad difference in AMA between humans, chimpanzees, and baboons. However, there is a significant evidence that humans differ from the other two species in various specefic joints. Humans were found to have higher a AMA than chimpanzees in the Mt5CubAP and NavTal joints as well as a higher AMA than baboons in TalCal and NavTal joints. Of these joints, Mt5CubAP was found to have a higher AMA than both the NavTal and TalCal, and NacTal higher than TalCal.
-
 \newpage
 
 # Power Simulation
 
 The power of a test is defined as $P=1-\beta$, or the probability rejecting the null hypothesis when it is false. A test's power falls between 0 and 1 and can be determined by dividing the amount of times the null hypothesis was correctly rejected by the sample size. A higher power is desired, as this implies the test has a lower probability of resulting in a false negative.
 
-To determine the power of the permutation tests conducted above, I ran a simulation. The distribution we are using has a spread parameter $\kappa$ which governs the spread between joints with a lower $\kappa$ resulting in a lower spread. I ran the simulation four times while changing parameters $\kappa$ and sample size $n$. I repeated the test 30 times for the 4 $\kappa$ parameters: 5, 20, 50, and 100 as well as the 3 $n$ values: 10, 50, and 100. As previously mentioned, each test contains 10,000 permutations, so a total of 3.6 million tests were ran. The resulting cumulative density functions (CDF) are shown in *figure 1* below:  
+To determine the power of the permutation tests conducted above, we ran a simulation. The distribution we are using has a spread parameter $\kappa$ which governs the spread between joints with a lower $\kappa$ resulting in a lower spread. We ran the simulation four times while changing parameters $\kappa$ and sample size $n$. We repeated the test 30 times for the 4 $\kappa$ parameters: 5, 20, 50, and 100 as well as the 3 $n$ values: 10, 50, and 100. As previously mentioned, each test contains 10,000 permutations, so a total of 3.6 million tests were ran. The resulting plots are shown in *figure 1* below:  
 
 ```{r, echo = F, message = F, error=F, warning=F}
-library(gridExtra)
-library(grid)
-library(cowplot)
-
 k5ang0   = c(.04,.04,.01)
 k20ang0  = c(.03,.06,.04)
 k50ang0  = c(.03,.04,.04)
@@ -321,21 +322,13 @@ grid.newpage()
 grid.draw(legend)
 ```
 
+As shown in *figure 1*, the permutation test becomes more powerful with a larger spread ($\kappa$), angle, and sample size ($n$). For nearly all cases, the power comes extremely close to 1; therefore the probability of resulting in a false negative is very small. However, when $\kappa$ is at or below 5, a larger sample size is required to reach a power approaching 1. This is shown in the first graph where $n=10$ only reaches ~0.09. Otherwise, the results match what we would expect, with diminishing returns on increasingly large $\kappa$ and $n$ values.
 
+\newpage
 
+# Results
 
+In conclusion, there is no significant broad difference in AMA between humans, chimpanzees, and baboons. However, there is a significant evidence that humans differ from the other two species in various specefic joints. Humans were found to have higher a AMA than chimpanzees in the Mt5CubAP and NavTal joints as well as a higher AMA than baboons in TalCal and NavTal joints, with AMA values ranging from 0.16 and 0.27. Of these joints, Mt5CubAP was found to have a higher AMA than both the NavTal and TalCal, and NacTal higher than TalCal with observed AMA values falling between 0.17 and 0.44. 
 
-
-
-
-
-Simulation Study: Discuss the simulation study done to explore power. What simulations were
-run and what general trends are you seeing in the graphs you ended up with? Do these results
-match what you’d expect to happen regarding change in sample size and change in spread
-(kappa)?
-
-
-
-Application to joint data: Discuss the results of applying your permutation test to the joint data.
-Which species were found to be significantly different for which joints?
+As the spread is unknown, we don't truly know the power of the test. However, given that the AMA values fall between 0.16 and 0.44 and the sample size is 17, we have a power rating close to 1, assuming a high $\kappa$.
 
